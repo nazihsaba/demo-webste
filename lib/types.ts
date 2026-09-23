@@ -1,20 +1,20 @@
-export type TemplateId = "restaurant" | "coffee-shop";
+export type TemplateId = "restaurant" | "coffee-shop" | "general";
 
-export type Offering = {
-  name: string;
-  description?: string;
-  price?: string;
-};
-
-export type OpeningHour = {
-  day: string;
-  hours: string;
+export type Offering = { name: string; description?: string; price?: string };
+export type OpeningHour = { day: string; hours: string };
+export type ReviewTag = { title: string; count: number };
+export type ReviewsDistribution = {
+  oneStar?: number;
+  twoStar?: number;
+  threeStar?: number;
+  fourStar?: number;
+  fiveStar?: number;
 };
 
 /**
- * Everything the scraper + the AI step give us about one business.
- * Only `slug`, `business` and `template` are guaranteed.
- * Every other field can be missing, so templates must handle that.
+ * One business, as the templates see it.
+ * Only slug, business and template are guaranteed. Everything else can be
+ * missing, and every template must still look finished without it.
  */
 export type Business = {
   slug: string;
@@ -29,8 +29,15 @@ export type Business = {
   imageUrl?: string;
   galleryUrls?: string[];
   mapsUrl?: string;
+  lat?: number;
+  lng?: number;
   headline?: string;
   about?: string;
+  editorialSummary?: string;
   offerings?: Offering[];
   openingHours?: OpeningHour[];
+  openingHoursToday?: OpeningHour;
+  highlights?: string[];
+  reviewTags?: ReviewTag[];
+  reviewsDistribution?: ReviewsDistribution;
 };

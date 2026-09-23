@@ -1,41 +1,59 @@
+import Image from "next/image";
 import Link from "next/link";
 import { getAllBusinesses } from "@/lib/get-business";
 
-/**
- * Internal index. Not for business owners — just a way to open each
- * preview while building. Do not link to this from anywhere public.
- */
 export const revalidate = 60;
 
+const LABEL = { restaurant: "Restaurant", "coffee-shop": "Coffee shop", general: "General" } as const;
+
+/**
+ * Internal list of every preview. For you and Rayan, never for business
+ * owners: send them their own link, not this page.
+ */
 export default async function Home() {
-  const businesses = await getAllBusinesses();
+  const { businesses, problem } = await getAllBusinesses();
 
   return (
-    <main className="mx-auto min-h-screen max-w-2xl bg-[#F2F3EF] px-6 py-20 font-[family-name:var(--font-space)] text-[#221C18]">
-      <h1 className="text-3xl font-bold tracking-tight">Website previews</h1>
-      <p className="mt-3 text-[#221C18]/60">
-        One page per business. Send the link, not this list.
-      </p>
-
-      {businesses.length === 0 ? (
-        <p className="mt-10 text-[#221C18]/60">
-          No businesses yet. Run a search in n8n and they will show up here.
+    <main className="t-general font-body min-h-screen bg-[var(--bg)] px-6 py-16 text-[var(--ink)] sm:py-24">
+      <div className="mx-auto max-w-3xl">
+        <h1 className="font-display text-4xl font-bold tracking-tight">Website previews</h1>
+        <p className="mt-3 text-[var(--muted)]">
+          {businesses.length} {businesses.length === 1 ? "business" : "businesses"}. Send each owner their own link, never this list.
         </p>
-      ) : null}
 
-      <ul className="mt-10 divide-y divide-[#221C18]/10 border-y border-[#221C18]/10">
-        {businesses.map((b) => (
-          <li key={b.slug}>
-            <Link
-              href={`/${b.slug}`}
-              className="flex items-baseline justify-between gap-4 py-4 hover:text-[#0F6E5C]"
-            >
-              <span className="font-medium">{b.business}</span>
-              <span className="text-sm text-[#221C18]/50">{b.template}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+        {problem ? (
+          <p className="mt-8 rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4 text-sm text-amber-900">{problem}</p>
+        ) : null}
+
+        {businesses.length === 0 && !problem ? (
+          <p className="mt-10 text-[var(--muted)]">No businesses yet. Run a search in n8n and they will appear here.</p>
+        ) : null}
+
+        <ul className="mt-10 grid gap-3">
+          {businesses.map((b) => (
+            <li key={b.slug}>
+              <Link
+                href={`/${b.slug}`}
+                className="flex items-center gap-4 rounded-2xl bg-[var(--bg-2)] p-3 pr-5 transition-shadow hover:shadow-[0_8px_30px_-12px_rgb(20_22_27/0.3)]"
+              >
+                <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-[var(--bg)]">
+                  {b.imageUrl ? <Image src={b.imageUrl} alt="" fill sizes="64px" className="object-cover" /> : null}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p dir="auto" className="truncate font-medium">{b.business}</p>
+                  <p className="truncate text-sm text-[var(--muted)]">
+                    {[b.category, b.area].filter(Boolean).join(", ")}
+                    {typeof b.rating === "number" ? `  ★ ${b.rating.toFixed(1)}` : ""}
+                  </p>
+                </div>
+                <span className="hidden rounded-full bg-[var(--accent)]/10 px-3 py-1 text-xs text-[var(--accent)] sm:inline">
+                  {LABEL[b.template]}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
     </main>
   );
 }

@@ -1,0 +1,9 @@
+In the n8n node "Build Supabase row", replace the value of the "template"
+field with the line below.
+
+What changes: anything that isn't food now goes to the new "general"
+design instead of being dressed up as a restaurant. Bakeries and dessert
+shops move to the coffee-shop look, so their button says "Order" rather
+than "Book a table".
+
+={{ /restaurant|grill|pizza|sushi|burger|steak|seafood|diner|bistro|kitchen|mezze|shawarma|manakish|food/i.test($json.Category || '') ? 'restaurant' : /cafe|café|coffee|tea|juice|dessert|ice cream|yogurt|roaster|pastry|bakery|açaí/i.test($json.Category || '') ? 'coffee-shop' : 'general' }}

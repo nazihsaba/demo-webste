@@ -1,37 +1,19 @@
 import type { Metadata } from "next";
-import { Fraunces, Karla, Space_Grotesk } from "next/font/google";
+import { fontVariables } from "@/lib/fonts";
+import { siteUrl } from "@/lib/supabase";
 import "./globals.css";
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-  axes: ["SOFT", "WONK", "opsz"],
-});
-
-const karla = Karla({ variable: "--font-karla", subsets: ["latin"] });
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
   title: "Website previews",
-  // These are previews of real businesses that did not ask for them,
-  // so they must never show up in search results.
+  // Previews of real businesses that didn't ask for them: never in search results.
   robots: { index: false, follow: false },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body
-        className={`${fraunces.variable} ${karla.variable} ${spaceGrotesk.variable}`}
-      >
-        {children}
-      </body>
+      <body className={fontVariables}>{children}</body>
     </html>
   );
 }

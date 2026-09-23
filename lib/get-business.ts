@@ -1,80 +1,111 @@
-import { supabase } from "./supabase";
-import type { Business } from "./types";
+import { getSupabase, isSampleMode } from "./supabase";
+import { sampleBusinesses } from "./sample-data";
+import type { Business, TemplateId } from "./types";
 
-/** The columns the pages actually use. Never `select *`. */
-const COLUMNS =
-  "slug, business, template, category, area, address, phone, rating, reviews, image_url, maps_url, headline, about, offerings, opening_hours";
+/**
+ * The only file that knows where business data comes from.
+ * Supabase columns are snake_case; the templates use camelCase.
+ * The translation happens here, once.
+ */
 
-/** Supabase uses snake_case, the templates use camelCase. Translate here, once. */
-type Row = {
-  slug: string;
-  business: string;
-  template: string;
-  category: string | null;
-  area: string | null;
-  address: string | null;
-  phone: string | null;
-  rating: number | null;
-  reviews: number | null;
-  image_url: string | null;
-  maps_url: string | null;
-  headline: string | null;
-  about: string | null;
-  offerings: Business["offerings"] | null;
-  opening_hours: Business["openingHours"] | null;
+type Row = Record<string, unknown>;
+
+const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : undefined);
+const num = (v: unknown) => {
+  const n = typeof v === "string" ? Number(v) : v;
+  return typeof n === "number" && Number.isFinite(n) ? n : undefined;
+};
+const arr = <T>(v: unknown): T[] | undefined => (Array.isArray(v) && v.length ? (v as T[]) : undefined);
+const obj = <T>(v: unknown): T | undefined =>
+  v && typeof v === "object" && !Array.isArray(v) ? (v as T) : undefined;
+
+const TEMPLATES: TemplateId[] = ["restaurant", "coffee-shop", "general"];
+
+/**
+ * "batroun" or "BATROUN" typed into the form becomes "Batroun".
+ * Mixed case someone typed on purpose ("Jal el Dib") is left alone.
+ */
+const titleCase = (s?: string) => {
+  if (!s || (s !== s.toLowerCase() && s !== s.toUpperCase())) return s;
+  return s.toLowerCase().replace(/(^|[\s-])\p{L}/gu, (c) => c.toUpperCase());
 };
 
-function toBusiness(row: Row): Business {
+export function toBusiness(row: Row): Business {
+  const template = TEMPLATES.includes(row.template as TemplateId)
+    ? (row.template as TemplateId)
+    : "general";
+
   return {
-    slug: row.slug,
-    business: row.business,
-    template: row.template === "coffee-shop" ? "coffee-shop" : "restaurant",
-    category: row.category ?? undefined,
-    area: row.area ?? undefined,
-    address: row.address ?? undefined,
-    phone: row.phone ?? undefined,
-    rating: row.rating ?? undefined,
-    reviews: row.reviews ?? undefined,
-    imageUrl: row.image_url ?? undefined,
-    mapsUrl: row.maps_url ?? undefined,
-    headline: row.headline ?? undefined,
-    about: row.about ?? undefined,
-    offerings: row.offerings ?? undefined,
-    openingHours: row.opening_hours ?? undefined,
+    slug: String(row.slug),
+    business: str(row.business) ?? "Business",
+    template,
+    category: str(row.category),
+    area: titleCase(str(row.area) ?? str(row.city)),
+    address: str(row.address),
+    phone: str(row.phone),
+    rating: num(row.rating),
+    reviews: num(row.reviews),
+    imageUrl: str(row.image_url),
+    galleryUrls: arr<string>(row.image_urls),
+    mapsUrl: str(row.maps_url),
+    lat: num(row.lat),
+    lng: num(row.lng),
+    headline: str(row.headline),
+    about: str(row.about),
+    editorialSummary: str(row.editorial_summary),
+    offerings: arr(row.offerings),
+    openingHours: arr(row.opening_hours),
+    openingHoursToday: obj(row.opening_hours_today),
+    highlights: arr<string>(row.highlights),
+    reviewTags: arr(row.review_tags),
+    reviewsDistribution: obj(row.reviews_distribution),
   };
 }
 
 export async function getBusiness(slug: string): Promise<Business | null> {
-  const { data, error } = await supabase
-    .from("businesses")
-    .select(COLUMNS)
-    .eq("slug", slug)
-    .maybeSingle<Row>();
+  if (isSampleMode) return sampleBusinesses.find((b) => b.slug === slug) ?? null;
 
+  const db = getSupabase();
+  if (!db) return null;
+
+  // select("*") on purpose: if a newer column hasn't been added in Supabase
+  // yet, the page still works with what exists instead of failing outright.
+  const { data, error } = await db.from("businesses").select("*").eq("slug", slug).maybeSingle();
   if (error) {
-    console.error("Supabase getBusiness failed:", error.message);
+    console.error(`Supabase: could not load "${slug}":`, error.message);
     return null;
   }
   return data ? toBusiness(data) : null;
 }
 
-/** Used by generateStaticParams and by the internal index page. */
-export async function getAllBusinesses(): Promise<Business[]> {
-  const { data, error } = await supabase
-    .from("businesses")
-    .select(COLUMNS)
-    .order("created_at", { ascending: false })
-    .limit(1000);
+export type ListResult = { businesses: Business[]; problem?: string };
 
-  if (error) {
-    console.error("Supabase getAllBusinesses failed:", error.message);
-    return [];
-  }
-  return (data as Row[]).map(toBusiness);
+/** For the internal index page. Only light columns, never the raw archive. */
+export async function getAllBusinesses(): Promise<ListResult> {
+  if (isSampleMode) return { businesses: sampleBusinesses, problem: "Showing sample data (USE_SAMPLE_DATA is on)." };
+
+  const db = getSupabase();
+  if (!db)
+    return {
+      businesses: [],
+      problem: "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+    };
+
+  const { data, error } = await db
+    .from("businesses")
+    .select("slug, business, template, category, area, rating, reviews, image_url, created_at")
+    .order("created_at", { ascending: false })
+    .limit(500);
+
+  if (error) return { businesses: [], problem: `Supabase error: ${error.message}` };
+  return { businesses: (data ?? []).map(toBusiness) };
 }
 
 export async function getAllSlugs(): Promise<string[]> {
-  const { data, error } = await supabase.from("businesses").select("slug");
-  if (error) return [];
-  return data.map((r) => r.slug as string);
+  if (isSampleMode) return sampleBusinesses.map((b) => b.slug);
+  const db = getSupabase();
+  if (!db) return [];
+  const { data, error } = await db.from("businesses").select("slug").limit(500);
+  if (error || !data) return [];
+  return data.map((r) => String(r.slug));
 }
