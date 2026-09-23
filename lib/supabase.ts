@@ -14,12 +14,12 @@ let client: SupabaseClient | null | undefined;
 export function getSupabase(): SupabaseClient | null {
   if (client !== undefined) return client;
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const url = process.env.NEXT_PUB_SUPABASE_URL;
+  const key = process.env.NEXT_PUB_SUPABASE_ANON_KEY;
 
   if (!url || !key) {
     console.warn(
-      "Supabase is not configured: set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+      "Supabase is not configured: set NEXT_PUB_SUPABASE_URL and NEXT_PUB_SUPABASE_ANON_KEY.",
     );
     client = null;
     return client;
@@ -30,7 +30,7 @@ export function getSupabase(): SupabaseClient | null {
 }
 
 export function siteUrl(): string {
-  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
+  if (process.env.NEXT_PUB_SUPABASE_URL) return process.env.NEXT_PUB_SUPABASE_URL;
   if (process.env.VERCEL_PROJECT_PRODUCTION_URL)
     return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
   return "http://localhost:3000";

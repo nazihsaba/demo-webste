@@ -88,7 +88,7 @@ export async function getAllBusinesses(): Promise<ListResult> {
   if (!db)
     return {
       businesses: [],
-      problem: "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+      problem: "Supabase is not configured. Add NEXT_PUB_SUPABASE_URL and NEXT_PUB_SUPABASE_ANON_KEY.",
     };
 
   const { data, error } = await db
