@@ -1,53 +1,33 @@
-import type { Metadata, Viewport } from "next";
-import { notFound } from "next/navigation";
-import { templates, themeColors } from "@/components/templates";
-import { getAllSlugs, getBusiness } from "@/lib/get-business";
+import { BusinessBrowser } from "@/components/site/business-browser";
+import { getAllBusinesses } from "@/lib/get-business";
 
-type Props = { params: Promise<{ slug: string }> };
+export const revalidate = 60;
 
-// Pages re-check Supabase at most once an hour.
-export const revalidate = 3600;
+/**
+ * Internal list of every preview, grouped by business type.
+ * For you and Rayan only: owners get their own link, never this page.
+ */
+export default async function Home() {
+  const { businesses, problem } = await getAllBusinesses();
 
-// Build every business known now. One added later is built on its first
-// visit and cached from then on, so new links work without a redeploy.
-export async function generateStaticParams() {
-  const slugs = await getAllSlugs();
-  return slugs.map((slug) => ({ slug }));
-}
+  return (
+    <main className="t-general font-body min-h-screen bg-[var(--bg)] px-6 py-16 text-[var(--ink)] sm:py-20">
+      <div className="mx-auto max-w-3xl">
+        <h1 className="font-display text-4xl font-bold tracking-tight">Website previews</h1>
+        <p className="mt-3 text-[var(--muted)]">
+          {businesses.length} {businesses.length === 1 ? "business" : "businesses"}. Send each owner their own link, never this list.
+        </p>
 
-export async function generateViewport({ params }: Props): Promise<Viewport> {
-  const { slug } = await params;
-  const b = await getBusiness(slug);
-  return { themeColor: b ? themeColors[b.template] : "#ffffff" };
-}
+        {problem ? (
+          <p className="mt-8 rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4 text-sm text-amber-900">{problem}</p>
+        ) : null}
 
-/** What WhatsApp reads when the link is pasted into a chat. */
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const b = await getBusiness(slug);
-  if (!b) return { title: "Preview not found" };
-
-  const title = b.area ? `${b.business}, ${b.area}` : b.business;
-  const description =
-    b.headline ??
-    [b.category, typeof b.rating === "number" ? `rated ${b.rating.toFixed(1)} on Google` : null]
-      .filter(Boolean)
-      .join(", ");
-
-  return {
-    title,
-    description,
-    robots: { index: false, follow: false },
-    openGraph: { title, description, type: "website" },
-    twitter: { card: "summary_large_image", title, description },
-  };
-}
-
-export default async function BusinessPage({ params }: Props) {
-  const { slug } = await params;
-  const b = await getBusiness(slug);
-  if (!b) notFound();
-
-  const Template = templates[b.template] ?? templates.general;
-  return <Template b={b} />;
+        {businesses.length === 0 && !problem ? (
+          <p className="mt-10 text-[var(--muted)]">No businesses yet. Run a search in n8n and they will appear here.</p>
+        ) : (
+          <BusinessBrowser businesses={businesses} />
+        )}
+      </div>
+    </main>
+  );
 }
