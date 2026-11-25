@@ -1,29 +1,12 @@
+import { kindById } from "./categories";
 import { collapseWeek, normalizeWeek, tidyHours } from "./hours";
-import type { Business, OpeningHour, ReviewTag, TemplateId } from "./types";
+import type { Business, OpeningHour, ReviewTag } from "./types";
 
 /**
  * Everything the templates display, worked out once from the raw business.
  * Templates stay pure layout: no parsing, no fallbacks, no guessing.
  */
 export type View = ReturnType<typeof buildView>;
-
-const CTA_TEXT: Record<TemplateId, { whatsapp: string; call: string; message: string }> = {
-  restaurant: {
-    whatsapp: "Book a table on WhatsApp",
-    call: "Call to book a table",
-    message: "Hi {name}, I'd like to book a table for ",
-  },
-  "coffee-shop": {
-    whatsapp: "Order on WhatsApp",
-    call: "Call to order",
-    message: "Hi {name}, I'd like to order ",
-  },
-  general: {
-    whatsapp: "Message us on WhatsApp",
-    call: "Call us",
-    message: "Hi {name}, I'd like to ask about ",
-  },
-};
 
 /**
  * Lebanese numbers, stored as digits with 961 in front.
@@ -85,6 +68,16 @@ function generatedAbout(b: Business, name: string, mentions: ReviewTag[]) {
   return parts.join(" ");
 }
 
+/**
+ * Photos for a 3-column grid with no hole at the end: 5 photos -> the
+ * first one goes double width; 4 -> the last one is left out.
+ */
+export function gridPhotos(photos: string[]): { src: string; wide: boolean }[] {
+  const list = photos.slice(0, 6);
+  const keep = list.length > 3 && list.length % 3 === 1 ? list.slice(0, -1) : list;
+  return keep.map((src, i) => ({ src, wide: i === 0 && keep.length % 3 === 2 }));
+}
+
 /** Arabic, Hebrew and similar scripts render right to left. */
 export const hasRtl = (text: string) => /[\u0590-\u08FF]/.test(text);
 
@@ -107,8 +100,12 @@ export function buildView(b: Business) {
   const photos = Array.from(new Set([b.imageUrl, ...(b.galleryUrls ?? [])].filter(Boolean))) as string[];
 
   const phone = describePhone(b.phone);
-  const text = CTA_TEXT[b.template];
-  const message = encodeURIComponent(text.message.replace("{name}", name.primary));
+  // Button words come from the shop category: "Request a quote" for a
+  // garage, "Book on WhatsApp" for a salon. See lib/categories.ts.
+  const kind = kindById(b.kind);
+  const text = kind.cta;
+  const greeting = text.message.replace("{name}", name.primary);
+  const message = encodeURIComponent(greeting);
 
   const cta = phone
     ? phone.isMobile
@@ -138,6 +135,9 @@ export function buildView(b: Business) {
 
   return {
     name,
+    kind,
+    /** "Hi Studio Nour, I'd like to book " — start of every WhatsApp message. */
+    greeting,
     hero: photos[0],
     gallery: photos.slice(1, 7),
     photoCount: photos.length,

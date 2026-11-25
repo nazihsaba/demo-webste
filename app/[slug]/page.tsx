@@ -1,33 +1,51 @@
-import { BusinessBrowser } from "@/components/site/business-browser";
-import { getAllBusinesses } from "@/lib/get-business";
-
-export const revalidate = 60;
+import type { Metadata, Viewport } from "next";
+import { notFound } from "next/navigation";
+import { templates, themeColors } from "@/components/templates";
+import { getAllSlugs, getBusiness } from "@/lib/get-business";
+import { buildView } from "@/lib/view";
 
 /**
- * Internal list of every preview, grouped by business type.
- * For you and Rayan only: owners get their own link, never this page.
+ * One business: its data, dressed in its template.
+ * Pages for businesses known at build time are made in advance. Anything
+ * added later is made on its first visit, then cached (dynamicParams),
+ * and refreshed in the background at most once every 10 minutes.
  */
-export default async function Home() {
-  const { businesses, problem } = await getAllBusinesses();
+export const revalidate = 600;
+export const dynamicParams = true;
 
-  return (
-    <main className="t-general font-body min-h-screen bg-[var(--bg)] px-6 py-16 text-[var(--ink)] sm:py-20">
-      <div className="mx-auto max-w-3xl">
-        <h1 className="font-display text-4xl font-bold tracking-tight">Website previews</h1>
-        <p className="mt-3 text-[var(--muted)]">
-          {businesses.length} {businesses.length === 1 ? "business" : "businesses"}. Send each owner their own link, never this list.
-        </p>
+type Props = { params: Promise<{ slug: string }> };
 
-        {problem ? (
-          <p className="mt-8 rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4 text-sm text-amber-900">{problem}</p>
-        ) : null}
+export async function generateStaticParams() {
+  const slugs = await getAllSlugs();
+  return slugs.map((slug) => ({ slug }));
+}
 
-        {businesses.length === 0 && !problem ? (
-          <p className="mt-10 text-[var(--muted)]">No businesses yet. Run a search in n8n and they will appear here.</p>
-        ) : (
-          <BusinessBrowser businesses={businesses} />
-        )}
-      </div>
-    </main>
-  );
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const b = await getBusiness(slug);
+  if (!b) return { title: "No preview here" };
+
+  const v = buildView(b);
+  const title = v.kicker ? `${v.name.primary}, ${v.kicker}` : v.name.primary;
+  const description = v.about.length > 160 ? `${v.about.slice(0, 157).trimEnd()}...` : v.about;
+  return {
+    title,
+    description,
+    openGraph: { title, description, type: "website" },
+  };
+}
+
+export async function generateViewport({ params }: Props): Promise<Viewport> {
+  const { slug } = await params;
+  const b = await getBusiness(slug);
+  return { themeColor: themeColors[b?.template ?? "general"] };
+}
+
+export default async function BusinessPage({ params }: Props) {
+  const { slug } = await params;
+  const b = await getBusiness(slug);
+  if (!b) notFound();
+
+  const Template = templates[b.template];
+  return <Template b={b} />;
 }

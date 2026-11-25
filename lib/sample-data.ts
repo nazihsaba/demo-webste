@@ -3,7 +3,8 @@ import type { Business } from "./types";
 /**
  * Invented businesses for trying the site without a database.
  * Turn on with USE_SAMPLE_DATA=1. Each one tests a different amount of data:
- * rich, medium, sparse, and an Arabic name.
+ * rich, medium, sparse, and an Arabic name. The last four have no photos on
+ * purpose, to check that the newer templates still look finished without them.
  */
 const photos = (set: string, n = 6) =>
   Array.from({ length: n }, (_, i) => `/samples/${set}-${i + 1}.jpg`);
@@ -11,7 +12,7 @@ const photos = (set: string, n = 6) =>
 const everyDay = (hours: string) =>
   ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => ({ day, hours }));
 
-export const sampleBusinesses: Business[] = [
+export const sampleBusinesses: Omit<Business, "kind">[] = [
   {
     slug: "beit-samra-batroun-a1b2",
     business: "Beit Samra",
@@ -117,5 +118,116 @@ export const sampleBusinesses: Business[] = [
     ],
     highlights: ["Appointment required", "Women-owned", "Wheelchair-accessible entrance"],
     reviewsDistribution: { fiveStar: 60, fourStar: 3, threeStar: 1 },
+  },
+  {
+    slug: "garage-haddad-dora-k1l2",
+    business: "Garage Haddad",
+    template: "general",
+    category: "Auto repair shop",
+    area: "Dora",
+    address: "Sea road, Dora, Lebanon",
+    phone: "96170123456",
+    rating: 4.6,
+    reviews: 188,
+    lat: 33.8938,
+    lng: 35.5446,
+    editorialSummary:
+      "Family garage since 1994. Mechanics, electrics and air conditioning for Japanese, Korean and European cars. We tell you the price before we start.",
+    offerings: [
+      { name: "Brake pads and discs", description: "Front or rear, parts included" },
+      { name: "Oil and filter change", description: "While you wait, about 30 minutes" },
+      { name: "Car AC regas and leak check" },
+      { name: "Computer diagnostics", description: "Engine light, ABS, airbag" },
+    ],
+    openingHours: [
+      ...["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map((day) => ({ day, hours: "8 AM–6 PM" })),
+      { day: "Saturday", hours: "8 AM–2 PM" },
+      { day: "Sunday", hours: "Closed" },
+    ],
+    highlights: ["Onsite services", "Accepts credit cards", "Wheelchair-accessible parking"],
+    reviewTags: [
+      { title: "honest price", count: 27 },
+      { title: "air conditioning", count: 14 },
+      { title: "quick service", count: 11 },
+    ],
+    reviewsDistribution: { fiveStar: 139, fourStar: 31, threeStar: 9, twoStar: 3, oneStar: 6 },
+  },
+  {
+    slug: "maison-lilas-events-m3n4",
+    business: "Maison Lilas - ميزون ليلاس",
+    template: "general",
+    category: "Wedding planner",
+    area: "Jounieh",
+    address: "Kaslik, Jounieh, Lebanon",
+    phone: "96171445566",
+    rating: 4.9,
+    reviews: 57,
+    lat: 33.9808,
+    lng: 35.6178,
+    headline: "Weddings that feel like yours, not like a catalogue",
+    offerings: [
+      { name: "Full planning", description: "From the first venue visit to the last dance", price: "From $4,500" },
+      { name: "Day-of coordination", description: "We run the day so you can be in it", price: "From $1,200" },
+      { name: "Flowers and styling", description: "Church, venue and table design", price: "On request" },
+    ],
+    highlights: ["Arabic and French spoken", "Destination weddings"],
+    reviewTags: [
+      { title: "flowers", count: 19 },
+      { title: "organisation", count: 12 },
+    ],
+    reviewsDistribution: { fiveStar: 54, fourStar: 2, threeStar: 1 },
+  },
+  {
+    slug: "alphabet-learning-centre-o5p6",
+    business: "Alphabet Learning Centre",
+    template: "general",
+    category: "Tutoring service",
+    area: "Zahle",
+    address: "Boulevard, Zahle, Lebanon",
+    phone: "9618812345",
+    rating: 4.8,
+    reviews: 41,
+    lat: 33.8467,
+    lng: 35.9019,
+    offerings: [
+      { name: "Maths and physics", description: "Grade 7 to Terminale, Lebanese and French programmes", price: "$15 an hour" },
+      { name: "English and French", description: "Reading, writing, exam preparation" },
+      { name: "Official exam revision", description: "Brevet and Bac, small groups", price: "$120 a month" },
+    ],
+    openingHours: [
+      ...["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map((day) => ({ day, hours: "2 PM–8 PM" })),
+      { day: "Saturday", hours: "9 AM–1 PM" },
+      { day: "Sunday", hours: "Closed" },
+    ],
+    reviewTags: [
+      { title: "patient teachers", count: 9 },
+      { title: "results", count: 6 },
+    ],
+  },
+  {
+    slug: "karam-dental-clinic-q7r8",
+    business: "Karam Dental Clinic",
+    template: "general",
+    category: "Dental clinic",
+    area: "Hamra",
+    address: "Bliss street, Hamra, Beirut, Lebanon",
+    phone: "9613998877",
+    rating: 4.7,
+    reviews: 96,
+    lat: 33.8996,
+    lng: 35.4801,
+    offerings: [
+      { name: "Check-up and cleaning" },
+      { name: "Fillings" },
+      { name: "Teeth whitening" },
+      { name: "Clear aligners", description: "Consultation first" },
+    ],
+    openingHours: [
+      ...["Monday", "Tuesday", "Wednesday", "Thursday"].map((day) => ({ day, hours: "10 AM–6 PM" })),
+      { day: "Friday", hours: "10 AM–2 PM" },
+      ...["Saturday", "Sunday"].map((day) => ({ day, hours: "Closed" })),
+    ],
+    highlights: ["Appointment required", "English and French spoken"],
+    reviewsDistribution: { fiveStar: 82, fourStar: 9, threeStar: 2, twoStar: 1, oneStar: 2 },
   },
 ];

@@ -1,4 +1,4 @@
-import { Photo } from "./photo";
+import { Photo, type Grade } from "./photo";
 
 /**
  * Magazine-style layout for up to five photos.
@@ -13,7 +13,7 @@ const DESKTOP: Record<number, string[]> = {
   5: ["sm:col-span-2 sm:row-span-2", "", "", "", ""],
 };
 
-export function Mosaic({ photos, grade }: { photos: string[]; grade: "restaurant" | "coffee" | "general" }) {
+export function Mosaic({ photos, grade }: { photos: string[]; grade: Grade }) {
   const list = photos.slice(0, 5);
   if (!list.length) return null;
   const rest = list.length - 1;

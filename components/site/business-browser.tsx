@@ -3,21 +3,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import type { Business, TemplateId } from "@/lib/types";
+import { ALL_KINDS, type KindId } from "@/lib/categories";
+import type { Business } from "@/lib/types";
 
-const TYPES: { id: TemplateId; label: string }[] = [
-  { id: "restaurant", label: "Restaurants" },
-  { id: "coffee-shop", label: "Coffee shops" },
-  { id: "general", label: "Everything else" },
-];
+const TYPES = ALL_KINDS.map((k) => ({ id: k.id, label: k.label }));
 
 /**
- * The internal browser: businesses grouped by type, with filters for type
- * and area, plus a search box. Runs in the browser so filtering is instant
- * and costs no database queries.
+ * The internal browser: businesses grouped by shop category (the ten from
+ * the vRB sheet, plus "everything else"), with filters for category and
+ * area, plus a search box. Runs in the browser so filtering is instant and
+ * costs no database queries.
  */
 export function BusinessBrowser({ businesses }: { businesses: Business[] }) {
-  const [type, setType] = useState<TemplateId | "all">("all");
+  const [type, setType] = useState<KindId | "all">("all");
   const [area, setArea] = useState("all");
   const [query, setQuery] = useState("");
 
@@ -28,7 +26,7 @@ export function BusinessBrowser({ businesses }: { businesses: Business[] }) {
 
   const counts = useMemo(() => {
     const c: Record<string, number> = { all: businesses.length };
-    for (const b of businesses) c[b.template] = (c[b.template] ?? 0) + 1;
+    for (const b of businesses) c[b.kind] = (c[b.kind] ?? 0) + 1;
     return c;
   }, [businesses]);
 
@@ -36,7 +34,7 @@ export function BusinessBrowser({ businesses }: { businesses: Business[] }) {
     const q = query.trim().toLowerCase();
     return businesses.filter(
       (b) =>
-        (type === "all" || b.template === type) &&
+        (type === "all" || b.kind === type) &&
         (area === "all" || b.area === area) &&
         (!q || `${b.business} ${b.category ?? ""} ${b.area ?? ""}`.toLowerCase().includes(q)),
     );
@@ -45,7 +43,7 @@ export function BusinessBrowser({ businesses }: { businesses: Business[] }) {
   // Grouped when showing everything; one flat list when a type is picked.
   const groups =
     type === "all"
-      ? TYPES.map((t) => ({ ...t, items: visible.filter((b) => b.template === t.id) })).filter((g) => g.items.length)
+      ? TYPES.map((t) => ({ ...t, items: visible.filter((b) => b.kind === t.id) })).filter((g) => g.items.length)
       : [{ id: type, label: TYPES.find((t) => t.id === type)!.label, items: visible }];
 
   const chip = (active: boolean) =>
@@ -60,8 +58,8 @@ export function BusinessBrowser({ businesses }: { businesses: Business[] }) {
         <button type="button" onClick={() => setType("all")} className={chip(type === "all")}>
           All <span className="tabular-nums opacity-60">{counts.all ?? 0}</span>
         </button>
-        {TYPES.map((t) => (
-          <button key={t.id} type="button" onClick={() => setType(t.id)} className={chip(type === t.id)} disabled={!counts[t.id]}>
+        {TYPES.filter((t) => counts[t.id]).map((t) => (
+          <button key={t.id} type="button" onClick={() => setType(t.id)} className={chip(type === t.id)}>
             {t.label} <span className="tabular-nums opacity-60">{counts[t.id] ?? 0}</span>
           </button>
         ))}
@@ -105,7 +103,7 @@ export function BusinessBrowser({ businesses }: { businesses: Business[] }) {
 
           <ul className="grid gap-3">
             {group.items.map((b) => (
-              <li key={b.slug}>
+              <li key={b.slug} className="min-w-0">
                 <Link
                   href={`/${b.slug}`}
                   className="flex items-center gap-4 rounded-2xl bg-[var(--bg-2)] p-3 pr-5 transition-shadow hover:shadow-[0_8px_30px_-12px_rgb(20_22_27/0.3)]"

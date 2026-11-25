@@ -1,4 +1,31 @@
-export type TemplateId = "restaurant" | "coffee-shop" | "general";
+import type { KindId } from "./categories";
+
+/**
+ * Seven page designs. restaurant, coffee-shop and general were the first
+ * three; the other four are the template families from the vRB sheet:
+ *   appointments  salons, barbers, clinics, fitness, pet care
+ *   quote         garages, home maintenance, electronics repair
+ *   events        wedding and event vendors
+ *   education     tutors and courses
+ */
+export type TemplateId =
+  | "restaurant"
+  | "coffee-shop"
+  | "appointments"
+  | "quote"
+  | "events"
+  | "education"
+  | "general";
+
+export const TEMPLATE_IDS: TemplateId[] = [
+  "restaurant",
+  "coffee-shop",
+  "appointments",
+  "quote",
+  "events",
+  "education",
+  "general",
+];
 
 export type Offering = { name: string; description?: string; price?: string };
 export type OpeningHour = { day: string; hours: string };
@@ -13,13 +40,15 @@ export type ReviewsDistribution = {
 
 /**
  * One business, as the templates see it.
- * Only slug, business and template are guaranteed. Everything else can be
- * missing, and every template must still look finished without it.
+ * Only slug, business, template and kind are guaranteed. Everything else
+ * can be missing, and every template must still look finished without it.
  */
 export type Business = {
   slug: string;
   business: string;
   template: TemplateId;
+  /** The shop category from the sheet, worked out from Google's category. */
+  kind: KindId;
   category?: string;
   area?: string;
   address?: string;

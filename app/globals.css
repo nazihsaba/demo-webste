@@ -43,6 +43,65 @@
   --font-b: var(--font-schibsted), var(--font-plex-ar), system-ui, sans-serif;
 }
 
+/* Appointments: salons, clinics, studios, pet care.
+   Pale, calm ground; the accent changes with the kind of shop. */
+.t-appt {
+  --bg: #f5f2f4;
+  --bg-2: #ffffff;
+  --soft: #ece3ea;
+  --ink: #261c25;
+  --muted: rgb(38 28 37 / 0.64);
+  --accent: #8a2d61;
+  --accent-ink: #ffffff;
+  --line: rgb(38 28 37 / 0.1);
+  --font-d: var(--font-bricolage), var(--font-plex-ar), system-ui, sans-serif;
+  --font-b: var(--font-figtree), var(--font-plex-ar), system-ui, sans-serif;
+}
+.t-appt.k-clinic { --bg: #f1f5f6; --soft: #dfecee; --ink: #162629; --accent: #136973; --line: rgb(22 38 41 / 0.1); }
+.t-appt.k-fitness { --bg: #f4f2f0; --soft: #efe1da; --ink: #241a16; --accent: #ad3a1a; --line: rgb(36 26 22 / 0.1); }
+.t-appt.k-pet { --bg: #f3f4ee; --soft: #e5ead6; --ink: #1f2416; --accent: #4c6619; --line: rgb(31 36 22 / 0.1); }
+
+/* Quote: garages, home repairs, electronics. Steel and safety orange. */
+.t-quote {
+  --bg: #e9ecef;
+  --bg-2: #ffffff;
+  --steel: #1c242d;
+  --ink: #12161b;
+  --muted: rgb(18 22 27 / 0.64);
+  --accent: #c2410c;
+  --accent-ink: #ffffff;
+  --line: rgb(18 22 27 / 0.12);
+  --font-d: var(--font-barlow-c), var(--font-plex-ar), system-ui, sans-serif;
+  --font-b: var(--font-barlow), var(--font-plex-ar), system-ui, sans-serif;
+}
+
+/* Events: wedding and event vendors. Sage paper, bronze ink. */
+.t-events {
+  --bg: #eceee7;
+  --bg-2: #f7f8f3;
+  --ink: #1d241f;
+  --muted: rgb(29 36 31 / 0.64);
+  --accent: #7d5628;
+  --accent-ink: #ffffff;
+  --line: rgb(29 36 31 / 0.16);
+  --font-d: var(--font-cormorant), var(--font-naskh), Georgia, serif;
+  --font-b: var(--font-jost), var(--font-plex-ar), system-ui, sans-serif;
+}
+
+/* Education: tutors and courses. Exercise-book paper, board green. */
+.t-edu {
+  --bg: #f3f5f7;
+  --bg-2: #ffffff;
+  --ink: #19212e;
+  --muted: rgb(25 33 46 / 0.66);
+  --accent: #1d6a4d;
+  --accent-ink: #ffffff;
+  --line: rgb(25 33 46 / 0.12);
+  --marker: #ffe36e;
+  --font-d: var(--font-literata), var(--font-naskh), Georgia, serif;
+  --font-b: var(--font-atkinson), var(--font-plex-ar), system-ui, sans-serif;
+}
+
 .font-display { font-family: var(--font-d); }
 .font-body { font-family: var(--font-b); }
 
@@ -61,6 +120,16 @@
 .grade-coffee::after { background: #f3e7d3; mix-blend-mode: soft-light; opacity: 0.35; }
 
 .grade-general img { filter: saturate(0.9) contrast(1.03); }
+
+.grade-appt img { filter: saturate(0.94) contrast(1.02) brightness(1.03); }
+.grade-appt::after { background: #f3dcea; mix-blend-mode: soft-light; opacity: 0.3; }
+
+.grade-quote img { filter: saturate(0.85) contrast(1.08); }
+
+.grade-events img { filter: saturate(0.78) contrast(0.97) brightness(1.05); }
+.grade-events::after { background: #eadcc2; mix-blend-mode: soft-light; opacity: 0.45; }
+
+.grade-edu img { filter: saturate(0.95) contrast(1.02); }
 
 @media (hover: hover) {
   .photo:hover img { transform: scale(1.03); }
@@ -88,3 +157,44 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------------------------------------------------------------
+   Pieces specific to the newer templates.
+   --------------------------------------------------------------- */
+
+/* Appointments: the arched photo, like a salon mirror. */
+.arch { border-radius: 999px 999px 1.5rem 1.5rem; }
+
+/* Quote: the tear-off line across a job ticket. */
+.perforation { position: relative; border-top: 2px dashed var(--line); }
+.perforation::before,
+.perforation::after {
+  content: "";
+  position: absolute;
+  top: -0.8rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: var(--bg);
+}
+.perforation.on-steel::before,
+.perforation.on-steel::after { background: var(--steel); }
+.perforation::before { left: -0.75rem; }
+.perforation::after { right: -0.75rem; }
+
+/* Events: the double rule of a printed invitation card. */
+.invite-frame {
+  border: 1px solid var(--line);
+  outline: 1px solid var(--line);
+  outline-offset: -0.6rem;
+}
+
+/* Education: squared exercise-book paper. */
+.grid-paper {
+  background-color: var(--bg-2);
+  background-image:
+    linear-gradient(to right, rgb(29 106 77 / 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(29 106 77 / 0.08) 1px, transparent 1px);
+  background-size: 1.75rem 1.75rem;
+}
+.marker { background: linear-gradient(transparent 55%, var(--marker) 55%, var(--marker) 92%, transparent 92%); }

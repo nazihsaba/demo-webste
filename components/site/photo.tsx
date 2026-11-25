@@ -1,5 +1,8 @@
 import Image from "next/image";
 
+/** One colour treatment per template, defined in globals.css. */
+export type Grade = "restaurant" | "coffee" | "general" | "appt" | "quote" | "events" | "edu";
+
 /**
  * One photo, resized by Next.js for the screen it's shown on.
  * `grade` applies the template's colour treatment (see globals.css) so
@@ -14,7 +17,7 @@ export function Photo({
 }: {
   src: string;
   sizes: string;
-  grade: "restaurant" | "coffee" | "general";
+  grade: Grade;
   priority?: boolean;
   className?: string;
 }) {

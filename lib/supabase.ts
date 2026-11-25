@@ -14,12 +14,14 @@ let client: SupabaseClient | null | undefined;
 export function getSupabase(): SupabaseClient | null {
   if (client !== undefined) return client;
 
-  const url = process.env.NEXT_PUB_SUPABASE_URL;
-  const key = process.env.NEXT_PUB_SUPABASE_ANON_KEY;
+  // Both spellings work: the standard NEXT_PUBLIC_ names, and the short
+  // NEXT_PUB_ names this project used before. Whichever is set in Vercel.
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUB_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUB_SUPABASE_ANON_KEY;
 
   if (!url || !key) {
     console.warn(
-      "Supabase is not configured: set NEXT_PUB_SUPABASE_URL and NEXT_PUB_SUPABASE_ANON_KEY.",
+      "Supabase is not configured: set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
     );
     client = null;
     return client;

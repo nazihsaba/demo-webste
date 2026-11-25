@@ -7,6 +7,10 @@ export const contentType = "image/png";
 const COLORS = {
   restaurant: ["#111814", "#c9a227"],
   "coffee-shop": ["#0f6e5c", "#f2f3ef"],
+  appointments: ["#8a2d61", "#ffffff"],
+  quote: ["#c2410c", "#ffffff"],
+  events: ["#1d241f", "#d8c3a0"],
+  education: ["#1d6a4d", "#ffffff"],
   general: ["#2447b8", "#ffffff"],
 } as const;
 

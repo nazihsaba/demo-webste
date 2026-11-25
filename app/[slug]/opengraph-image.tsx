@@ -10,6 +10,10 @@ export const alt = "Website preview";
 const COLORS = {
   restaurant: { bg: "17,24,20", ink: "#eee8dc", accent: "#d9b23a" },
   "coffee-shop": { bg: "34,28,24", ink: "#f2f3ef", accent: "#6ddcc1" },
+  appointments: { bg: "38,28,37", ink: "#ffffff", accent: "#f0a8cf" },
+  quote: { bg: "28,36,45", ink: "#ffffff", accent: "#fb8a4c" },
+  events: { bg: "29,36,31", ink: "#f7f8f3", accent: "#d8c3a0" },
+  education: { bg: "25,33,46", ink: "#ffffff", accent: "#8fd3b4" },
   general: { bg: "20,22,27", ink: "#ffffff", accent: "#9fb4ff" },
 } as const;
 
