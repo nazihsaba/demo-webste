@@ -24,20 +24,19 @@ export const schibsted = Schibsted_Grotesk({ variable: "--font-schibsted", subse
 // The four newer templates. preload: false, so a salon page never
 // downloads the wedding fonts: the browser fetches a face only when the
 // page actually uses it.
-const lazy = { subsets: ["latin"] as ("latin")[], preload: false, display: "swap" as const };
 
 // Appointments: friendly, a little round, readable at small sizes.
-export const bricolage = Bricolage_Grotesque({ ...lazy, variable: "--font-bricolage" });
-export const figtree = Figtree({ ...lazy, variable: "--font-figtree" });
+export const bricolage = Bricolage_Grotesque({ subsets: ["latin"], preload: false, display: "swap", variable: "--font-bricolage" });
+export const figtree = Figtree({ subsets: ["latin"], preload: false, display: "swap", variable: "--font-figtree" });
 // Quote: workshop signage. Condensed for headings, plain for reading.
-export const barlowCondensed = Barlow_Condensed({ ...lazy, variable: "--font-barlow-c", weight: ["500", "600", "700"] });
-export const barlow = Barlow({ ...lazy, variable: "--font-barlow", weight: ["400", "500", "600"] });
+export const barlowCondensed = Barlow_Condensed({ subsets: ["latin"], preload: false, display: "swap", variable: "--font-barlow-c", weight: ["500", "600", "700"] });
+export const barlow = Barlow({ subsets: ["latin"], preload: false, display: "swap", variable: "--font-barlow", weight: ["400", "500", "600"] });
 // Events: invitation serif with a clean geometric partner.
-export const cormorant = Cormorant({ ...lazy, variable: "--font-cormorant", style: ["normal", "italic"] });
-export const jost = Jost({ ...lazy, variable: "--font-jost" });
+export const cormorant = Cormorant({ subsets: ["latin"], preload: false, display: "swap", variable: "--font-cormorant", style: ["normal", "italic"] });
+export const jost = Jost({ subsets: ["latin"], preload: false, display: "swap", variable: "--font-jost" });
 // Education: a book serif and a face designed for easy reading.
-export const literata = Literata({ ...lazy, variable: "--font-literata" });
-export const atkinson = Atkinson_Hyperlegible({ ...lazy, variable: "--font-atkinson", weight: ["400", "700"] });
+export const literata = Literata({ subsets: ["latin"], preload: false, display: "swap", variable: "--font-literata" });
+export const atkinson = Atkinson_Hyperlegible({ subsets: ["latin"], preload: false, display: "swap", variable: "--font-atkinson", weight: ["400", "700"] });
 
 // Arabic partners. The browser only downloads them when a page has Arabic
 // letters, so they cost nothing on English-only pages.
