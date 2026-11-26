@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { canResize } from "@/lib/image";
 import { ALL_KINDS, type KindId } from "@/lib/categories";
 import type { Business } from "@/lib/types";
 
@@ -109,7 +110,7 @@ export function BusinessBrowser({ businesses }: { businesses: Business[] }) {
                   className="flex items-center gap-4 rounded-2xl bg-[var(--bg-2)] p-3 pr-5 transition-shadow hover:shadow-[0_8px_30px_-12px_rgb(20_22_27/0.3)]"
                 >
                   <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-[var(--bg)]">
-                    {b.imageUrl ? <Image src={b.imageUrl} alt="" fill sizes="64px" className="object-cover" /> : null}
+                    {b.imageUrl ? <Image src={b.imageUrl} alt="" fill sizes="64px" unoptimized={!canResize(b.imageUrl)} className="object-cover" /> : null}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p dir="auto" className="truncate font-medium">

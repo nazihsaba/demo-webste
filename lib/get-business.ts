@@ -32,15 +32,15 @@ const titleCase = (s?: string) => {
 
 /**
  * Which design a business gets.
- * A specific template saved in Supabase wins, so you can always override
- * one business by hand. "general" or an empty column means "not decided":
- * the Google category picks the design, using the categories in
- * lib/categories.ts. No n8n change is needed for the new templates.
+ * The Google category decides first: a salon always gets the salon design,
+ * even if an older n8n run saved "restaurant" for it. The template saved in
+ * Supabase is only used when the category matches none of the shop kinds
+ * in lib/categories.ts.
  */
 export function pickTemplate(saved: unknown, category?: string): TemplateId {
-  const stored = TEMPLATE_IDS.includes(saved as TemplateId) ? (saved as TemplateId) : undefined;
-  if (stored && stored !== "general") return stored;
-  return kindFor(category).template;
+  const kind = kindFor(category);
+  if (kind.id !== "other") return kind.template;
+  return TEMPLATE_IDS.includes(saved as TemplateId) ? (saved as TemplateId) : kind.template;
 }
 
 export function toBusiness(row: Row): Business {

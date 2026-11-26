@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { canResize } from "@/lib/image";
 
 /** One colour treatment per template, defined in globals.css. */
 export type Grade = "restaurant" | "coffee" | "general" | "appt" | "quote" | "events" | "edu";
@@ -25,7 +26,7 @@ export function Photo({
   const position = /\babsolute\b/.test(className) ? "" : "relative";
   return (
     <div className={`photo grade-${grade} ${position} overflow-hidden ${className}`}>
-      <Image src={src} alt="" fill sizes={sizes} priority={priority} className="object-cover" />
+      <Image src={src} alt="" fill sizes={sizes} priority={priority} unoptimized={!canResize(src)} className="object-cover" />
     </div>
   );
 }
